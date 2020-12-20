@@ -24,6 +24,9 @@ import org.webrtc.SessionDescription;
 import org.webrtc.SurfaceTextureHelper;
 import org.webrtc.VideoCapturer;
 import org.webrtc.ScreenCapturerAndroid;
+import org.webrtc.VideoCodecInfo;
+import org.webrtc.VideoEncoder;
+import org.webrtc.VideoEncoderFactory;
 import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 
@@ -312,12 +315,19 @@ public class WebRtcClient {
         mListener = listener;
         pcParams = params;
         videoCapturer = capturer;
-        PeerConnectionFactory.initialize(PeerConnectionFactory.InitializationOptions.builder(mContext).createInitializationOptions());
-        factory = PeerConnectionFactory.builder().createPeerConnectionFactory();
+        PeerConnectionFactory.initialize(PeerConnectionFactory.InitializationOptions.builder(context).createInitializationOptions());
+        factory = PeerConnectionFactory.builder().setVideoEncoderFactory(new VideoEncoderFactory() {
+            @Override
+            public VideoEncoder createEncoder(VideoCodecInfo videoCodecInfo) {
+                return null;
+            }
 
-        videoSource = factory.createVideoSource(videoCapturer.isScreencast());
-        SurfaceTextureHelper surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", EglBase.create().getEglBaseContext());
-        videoCapturer.initialize(surfaceTextureHelper, context, videoSource.getCapturerObserver());
+            @Override
+            public VideoCodecInfo[] getSupportedCodecs() {
+                return new VideoCodecInfo[0];
+            }
+        })
+                .createPeerConnectionFactory();
 
 //        PeerConnectionFactory.initializeAndroidGlobals(listener, true, true,
 //                params.videoCodecHwAcceleration, mEGLcontext);
@@ -353,6 +363,7 @@ public class WebRtcClient {
      */
     public void onResume() {
 //        if (videoSource != null) videoSource.restart();
+
     }
 
     /**
@@ -403,10 +414,13 @@ public class WebRtcClient {
             videoConstraints.mandatory.add(new MediaConstraints.KeyValuePair("maxFrameRate", Integer.toString(pcParams.videoFps)));
             videoConstraints.mandatory.add(new MediaConstraints.KeyValuePair("minFrameRate", Integer.toString(pcParams.videoFps)));
 
+            videoSource = factory.createVideoSource(videoCapturer.isScreencast());
+            SurfaceTextureHelper surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", EglBase.create().getEglBaseContext());
+            videoCapturer.initialize(surfaceTextureHelper, mContext, videoSource.getCapturerObserver());
             videoCapturer.startCapture(pcParams.videoWidth, pcParams.videoHeight, pcParams.videoFps);
-            VideoTrack videoTrack = factory.createVideoTrack("local1", videoSource);
+            VideoTrack videoTrack = factory.createVideoTrack("ARDAMSv0", videoSource);
             videoTrack.setEnabled(true);
-            localMS.addTrack(factory.createVideoTrack("ARDAMSv0", videoSource));
+            localMS.addTrack(videoTrack);
         }
 
         AudioSource audioSource = factory.createAudioSource(new MediaConstraints());
