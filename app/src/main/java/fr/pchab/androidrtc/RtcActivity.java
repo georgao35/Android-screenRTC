@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Toast;
@@ -20,7 +21,9 @@ import org.webrtc.MediaStream;
 import org.webrtc.VideoCapturer;
 import org.webrtc.ScreenCapturerAndroid;
 //import org.webrtc.VideoRenderer;
+//import org.webrtc.VideoFileRenderer;
 //import org.webrtc.VideoRendererGui;
+import org.webrtc.RendererCommon;
 
 import java.util.List;
 
@@ -243,6 +246,7 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
 
     @Override
     public void onLocalStream(MediaStream localStream) {
+        Log.i("reminder","OnLocal");
 //        localStream.videoTracks.get(0).addRenderer(new VideoRenderer(localRender));
 //        VideoRendererGui.update(localRender,
 //                LOCAL_X_CONNECTING, LOCAL_Y_CONNECTING,
@@ -252,6 +256,7 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
 
     @Override
     public void onAddRemoteStream(MediaStream remoteStream, int endPoint) {
+        Log.i("reminder","onAddRemoteStream");
 //        remoteStream.videoTracks.get(0).addRenderer(new VideoRenderer(remoteRender));
 //        VideoRendererGui.update(remoteRender,
 //                REMOTE_X, REMOTE_Y,
@@ -264,6 +269,7 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
 
     @Override
     public void onRemoveRemoteStream(int endPoint) {
+        Log.i("reminder","onRemove");
 //        VideoRendererGui.update(localRender,
 //                LOCAL_X_CONNECTING, LOCAL_Y_CONNECTING,
 //                LOCAL_WIDTH_CONNECTING, LOCAL_HEIGHT_CONNECTING,

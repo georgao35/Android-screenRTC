@@ -323,10 +323,6 @@ public class WebRtcClient {
         factory = PeerConnectionFactory.builder().setVideoEncoderFactory(encoderFactory).setVideoDecoderFactory(decoderFactory)
                 .createPeerConnectionFactory();
 
-        videoSource = factory.createVideoSource(videoCapturer.isScreencast());
-        SurfaceTextureHelper surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", EglBase.create().getEglBaseContext());
-        videoCapturer.initialize(surfaceTextureHelper, context, videoSource.getCapturerObserver());
-
         MessageHandler messageHandler = new MessageHandler();
 
         try {
@@ -358,6 +354,7 @@ public class WebRtcClient {
      */
     public void onResume() {
 //        if (videoSource != null) videoSource.restart();
+
     }
 
     /**
@@ -408,10 +405,13 @@ public class WebRtcClient {
             videoConstraints.mandatory.add(new MediaConstraints.KeyValuePair("maxFrameRate", Integer.toString(pcParams.videoFps)));
             videoConstraints.mandatory.add(new MediaConstraints.KeyValuePair("minFrameRate", Integer.toString(pcParams.videoFps)));
 
+            videoSource = factory.createVideoSource(videoCapturer.isScreencast());
+            SurfaceTextureHelper surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", EglBase.create().getEglBaseContext());
+            videoCapturer.initialize(surfaceTextureHelper, mContext, videoSource.getCapturerObserver());
             videoCapturer.startCapture(pcParams.videoWidth, pcParams.videoHeight, pcParams.videoFps);
-            VideoTrack videoTrack = factory.createVideoTrack("local1", videoSource);
+            VideoTrack videoTrack = factory.createVideoTrack("ARDAMSv0", videoSource);
             videoTrack.setEnabled(true);
-            localMS.addTrack(factory.createVideoTrack("ARDAMSv0", videoSource));
+            localMS.addTrack(videoTrack);
         }
 
         AudioSource audioSource = factory.createAudioSource(new MediaConstraints());
