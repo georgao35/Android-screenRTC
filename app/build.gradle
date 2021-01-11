@@ -25,6 +25,6 @@ android {
 
 dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'org.webrtc:google-webrtc:1.0.26131'
+    implementation 'org.webrtc:google-webrtc:1.0.32006'
     implementation project(':webrtc-client')
 }

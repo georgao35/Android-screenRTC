@@ -12,6 +12,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.webrtc.AudioSource;
 import org.webrtc.DataChannel;
+import org.webrtc.DefaultVideoDecoderFactory;
+import org.webrtc.DefaultVideoEncoderFactory;
 import org.webrtc.EglBase;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
@@ -24,6 +26,8 @@ import org.webrtc.SessionDescription;
 import org.webrtc.SurfaceTextureHelper;
 import org.webrtc.VideoCapturer;
 import org.webrtc.ScreenCapturerAndroid;
+import org.webrtc.VideoDecoderFactory;
+import org.webrtc.VideoEncoderFactory;
 import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 
@@ -281,7 +285,8 @@ public class WebRtcClient {
 
         public Peer(String id, int endPoint) {
             Log.d(TAG, "new Peer: " + id + " " + endPoint);
-            this.pc = factory.createPeerConnection(iceServers, pcConstraints, this);
+            this.pc = factory.createPeerConnection(iceServers, this);
+//            this.pc = factory.createPeerConnection(iceServers, pcConstraints, this);
             this.id = id;
             this.endPoint = endPoint;
 
@@ -313,15 +318,15 @@ public class WebRtcClient {
         pcParams = params;
         videoCapturer = capturer;
         PeerConnectionFactory.initialize(PeerConnectionFactory.InitializationOptions.builder(mContext).createInitializationOptions());
-        factory = PeerConnectionFactory.builder().createPeerConnectionFactory();
+        final VideoEncoderFactory encoderFactory = new DefaultVideoEncoderFactory(EglBase.create().getEglBaseContext(), true, true);
+        final VideoDecoderFactory decoderFactory = new DefaultVideoDecoderFactory(EglBase.create().getEglBaseContext());
+        factory = PeerConnectionFactory.builder().setVideoEncoderFactory(encoderFactory).setVideoDecoderFactory(decoderFactory)
+                .createPeerConnectionFactory();
 
         videoSource = factory.createVideoSource(videoCapturer.isScreencast());
         SurfaceTextureHelper surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", EglBase.create().getEglBaseContext());
         videoCapturer.initialize(surfaceTextureHelper, context, videoSource.getCapturerObserver());
 
-//        PeerConnectionFactory.initializeAndroidGlobals(listener, true, true,
-//                params.videoCodecHwAcceleration, mEGLcontext);
-//        factory = new PeerConnectionFactory();
         MessageHandler messageHandler = new MessageHandler();
 
         try {
@@ -333,8 +338,8 @@ public class WebRtcClient {
         client.on("message", messageHandler.onMessage);
         client.connect();
 
-        iceServers.add(new PeerConnection.IceServer("stun:23.21.150.121"));
-        iceServers.add(new PeerConnection.IceServer("stun:stun.l.google.com:19302"));
+        iceServers.add(PeerConnection.IceServer.builder("stun:23.21.150.121").createIceServer());
+        iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer());
 
         pcConstraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"));
         pcConstraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"));
