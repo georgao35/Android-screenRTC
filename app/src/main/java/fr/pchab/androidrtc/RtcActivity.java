@@ -39,35 +39,14 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
     private static final String AUDIO_CODEC_OPUS = "opus";
     private static final int PROJ_REQ = 233;
     private static final int fps = 24;
-    // Local preview screen position before call is connected.
-    private static final int LOCAL_X_CONNECTING = 0;
-    private static final int LOCAL_Y_CONNECTING = 0;
-    private static final int LOCAL_WIDTH_CONNECTING = 100;
-    private static final int LOCAL_HEIGHT_CONNECTING = 100;
-    // Local preview screen position after call is connected.
-    private static final int LOCAL_X_CONNECTED = 72;
-    private static final int LOCAL_Y_CONNECTED = 72;
-    private static final int LOCAL_WIDTH_CONNECTED = 25;
-    private static final int LOCAL_HEIGHT_CONNECTED = 25;
-    // Remote video screen position
-    private static final int REMOTE_X = 0;
-    private static final int REMOTE_Y = 0;
-    private static final int REMOTE_WIDTH = 100;
-    private static final int REMOTE_HEIGHT = 100;
-//    private VideoRendererGui.ScalingType scalingType = VideoRendererGui.ScalingType.SCALE_ASPECT_FILL;
     private GLSurfaceView vsv;
-//    private VideoRenderer.Callbacks localRender;
-//    private VideoRenderer.Callbacks remoteRender;
     private WebRtcClient client;
     private String mSocketAddress;
     private String callerId;
 
-    private static final String[] RequiredPermissions = new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
     protected PermissionChecker permissionChecker = new PermissionChecker();
 
-    private MediaProjectionManager mediaProjectionManager;
     private Intent mediaProjectionResultData;
-    private int mediaProjectionResultCode;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -103,20 +82,6 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
 
             }
         });
-//        VideoRendererGui.setView(vsv, new Runnable() {
-//            @Override
-//            public void run() {
-//                init();
-//            }
-//        });
-
-        // local and remote render
-//        remoteRender = VideoRendererGui.create(
-//                REMOTE_X, REMOTE_Y,
-//                REMOTE_WIDTH, REMOTE_HEIGHT, scalingType, false);
-//        localRender = VideoRendererGui.create(
-//                LOCAL_X_CONNECTING, LOCAL_Y_CONNECTING,
-//                LOCAL_WIDTH_CONNECTING, LOCAL_HEIGHT_CONNECTING, scalingType, true);
 
         final Intent intent = getIntent();
         final String action = intent.getAction();
@@ -126,7 +91,7 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
             callerId = segments.get(0);
         }
 
-        mediaProjectionManager = (MediaProjectionManager)getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+        MediaProjectionManager mediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
         startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), PROJ_REQ);
     }
 
@@ -205,7 +170,6 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
             startCall();
         } else if (requestCode == PROJ_REQ) {
             if(resultCode == RESULT_OK){
-                mediaProjectionResultCode = resultCode;
                 mediaProjectionResultData = data;
                 init();
             }
@@ -213,10 +177,7 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
     }
 
     public void startCall() {
-        // Camera settings
-//        if (PermissionChecker.hasPermissions(this, RequiredPermissions)) {
             client.start("android_test");
-//        }
     }
 
     @Override
@@ -232,33 +193,16 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
     @Override
     public void onLocalStream(MediaStream localStream) {
         Log.i("reminder","OnLocal");
-//        localStream.videoTracks.get(0).addRenderer(new VideoRenderer(localRender));
-//        VideoRendererGui.update(localRender,
-//                LOCAL_X_CONNECTING, LOCAL_Y_CONNECTING,
-//                LOCAL_WIDTH_CONNECTING, LOCAL_HEIGHT_CONNECTING,
-//                scalingType, false);
     }
 
     @Override
     public void onAddRemoteStream(MediaStream remoteStream, int endPoint) {
         Log.i("reminder","onAddRemoteStream");
-//        remoteStream.videoTracks.get(0).addRenderer(new VideoRenderer(remoteRender));
-//        VideoRendererGui.update(remoteRender,
-//                REMOTE_X, REMOTE_Y,
-//                REMOTE_WIDTH, REMOTE_HEIGHT, scalingType, false);
-//        VideoRendererGui.update(localRender,
-//                LOCAL_X_CONNECTED, LOCAL_Y_CONNECTED,
-//                LOCAL_WIDTH_CONNECTED, LOCAL_HEIGHT_CONNECTED,
-//                scalingType, false);
     }
 
     @Override
     public void onRemoveRemoteStream(int endPoint) {
         Log.i("reminder","onRemove");
-//        VideoRendererGui.update(localRender,
-//                LOCAL_X_CONNECTING, LOCAL_Y_CONNECTING,
-//                LOCAL_WIDTH_CONNECTING, LOCAL_HEIGHT_CONNECTING,
-//                scalingType, false);
     }
 
     @Override

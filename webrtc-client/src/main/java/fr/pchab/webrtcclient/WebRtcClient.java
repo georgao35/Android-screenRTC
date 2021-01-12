@@ -1,7 +1,6 @@
 package fr.pchab.webrtcclient;
 
 import android.content.Context;
-import android.opengl.EGLContext;
 import android.util.Log;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -25,7 +24,6 @@ import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;
 import org.webrtc.SurfaceTextureHelper;
 import org.webrtc.VideoCapturer;
-import org.webrtc.ScreenCapturerAndroid;
 import org.webrtc.VideoDecoderFactory;
 import org.webrtc.VideoEncoderFactory;
 import org.webrtc.VideoSource;
@@ -35,7 +33,6 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import static org.webrtc.ContextUtils.getApplicationContext;
 
 public class WebRtcClient {
     private final static String TAG = WebRtcClient.class.getCanonicalName();
@@ -286,11 +283,10 @@ public class WebRtcClient {
         public Peer(String id, int endPoint) {
             Log.d(TAG, "new Peer: " + id + " " + endPoint);
             this.pc = factory.createPeerConnection(iceServers, this);
-//            this.pc = factory.createPeerConnection(iceServers, pcConstraints, this);
             this.id = id;
             this.endPoint = endPoint;
 
-            pc.addStream(localMS); //, new MediaConstraints()
+            pc.addStream(localMS);
 
             mListener.onStatusChanged("CONNECTING");
         }
@@ -346,14 +342,13 @@ public class WebRtcClient {
      * Call this method in Activity.onPause()
      */
     public void onPause() {
-//        if (videoSource != null) videoSource.pause();
+
     }
 
     /**
      * Call this method in Activity.onResume()
      */
     public void onResume() {
-//        if (videoSource != null) videoSource.restart();
 
     }
 
@@ -398,7 +393,7 @@ public class WebRtcClient {
 
     private void setRecord() {
         localMS = factory.createLocalMediaStream("ARDAMS");
-        //if (pcParams.videoCallEnabled) {
+        if (pcParams.videoCallEnabled) {
             MediaConstraints videoConstraints = new MediaConstraints();
             videoConstraints.mandatory.add(new MediaConstraints.KeyValuePair("maxHeight", Integer.toString(pcParams.videoHeight)));
             videoConstraints.mandatory.add(new MediaConstraints.KeyValuePair("maxWidth", Integer.toString(pcParams.videoWidth)));
@@ -412,7 +407,7 @@ public class WebRtcClient {
             VideoTrack videoTrack = factory.createVideoTrack("ARDAMSv0", videoSource);
             videoTrack.setEnabled(true);
             localMS.addTrack(videoTrack);
-        //}
+        }
 
         AudioSource audioSource = factory.createAudioSource(new MediaConstraints());
         localMS.addTrack(factory.createAudioTrack("ARDAMSa0", audioSource));
