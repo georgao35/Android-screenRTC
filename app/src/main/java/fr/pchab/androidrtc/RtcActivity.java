@@ -38,6 +38,7 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
     private static final String VIDEO_CODEC_VP9 = "VP9";
     private static final String AUDIO_CODEC_OPUS = "opus";
     private static final int PROJ_REQ = 233;
+    private static final int fps = 24;
     // Local preview screen position before call is connected.
     private static final int LOCAL_X_CONNECTING = 0;
     private static final int LOCAL_Y_CONNECTING = 0;
@@ -125,25 +126,9 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
             callerId = segments.get(0);
         }
 
-//        checkPermissions();
         mediaProjectionManager = (MediaProjectionManager)getSystemService(Context.MEDIA_PROJECTION_SERVICE);
         startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), PROJ_REQ);
     }
-
-//    private void checkPermissions() {
-//        permissionChecker.verifyPermissions(this, RequiredPermissions, new PermissionChecker.VerifyPermissionsCallback() {
-//
-//            @Override
-//            public void onPermissionAllGranted() {
-//
-//            }
-//
-//            @Override
-//            public void onPermissionDeny(String[] permissions) {
-//                Toast.makeText(RtcActivity.this, "Please grant required permissions.", Toast.LENGTH_LONG).show();
-//            }
-//        });
-//    }
 
     private VideoCapturer createVideoCapturer() {
         return new ScreenCapturerAndroid(mediaProjectionResultData, new MediaProjection.Callback() {
@@ -158,7 +143,7 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
         Point displaySize = new Point();
         getWindowManager().getDefaultDisplay().getSize(displaySize);
         PeerConnectionParameters params = new PeerConnectionParameters(
-                true, true, displaySize.x, displaySize.y, 30, 1, VIDEO_CODEC_VP9, true, 1, AUDIO_CODEC_OPUS, true);
+                true, true, displaySize.x, displaySize.y, fps, 1, VIDEO_CODEC_VP9, true, 1, AUDIO_CODEC_OPUS, true);
 
         client = new WebRtcClient(getApplicationContext(), this, createVideoCapturer(), mSocketAddress, params);
     }
